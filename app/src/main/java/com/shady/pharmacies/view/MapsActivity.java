@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.shady.pharmacies.R;
@@ -23,7 +25,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private double latitude;
     private double longitude;
 
-    public static Intent getIntent(Context context, Place place, double lat, double lng){
+    public static Intent getIntent(Context context, Place place){
         return new Intent(context, MapsActivity.class)
                 .putExtra("place", place);
     }
@@ -41,6 +43,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             latitude=gps.getLatitude();
             longitude= gps.getLongitude();
         }
+
+        Toast.makeText(this, latitude + " " + longitude, Toast.LENGTH_SHORT).show();
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

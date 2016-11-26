@@ -6,9 +6,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -25,10 +27,11 @@ import java.util.ArrayList;
  */
 public class MainFragment
         extends Fragment
-implements MainActivity.Callback{
+        implements SwipeRefreshLayout.OnRefreshListener {
 
     private final String TAG = getClass().getSimpleName();
     private Context context;
+    SwipeRefreshLayout swipeRefreshLayout;
     private GPSTracker gps;
     private double latitude;
     private double longitude;
@@ -51,8 +54,12 @@ implements MainActivity.Callback{
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_layout);
         listView = (ListView) view.findViewById(R.id.listView_pharms);
         context = getContext();
+
+        // setup swipe to refresh
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         return view;
     }
@@ -68,7 +75,6 @@ implements MainActivity.Callback{
         if (gps.canGetLocation()) {
             latitude = gps.getLatitude();
             longitude = gps.getLongitude();
-            Toast.makeText(context, latitude + " " + longitude, Toast.LENGTH_SHORT).show();
             new GetPlaces(context, latitude, longitude).execute();
         } else {
             Toast.makeText(context, "Can not get location !!!", Toast.LENGTH_SHORT).show();
@@ -100,8 +106,19 @@ implements MainActivity.Callback{
                 dialog.dismiss();
             }
 
+            // stop the swipe to refresh
+            swipeRefreshLayout.setRefreshing(false);
+
             adapter = new PharmacyAdapter(context, places);
             listView.setAdapter(adapter);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    startActivity(
+                            MapsActivity.getIntent(context, places.get(i))
+                    );
+                }
+            });
 
 //            for (int i = 0; i < result.size(); i++) {
 //                mMap.addMarker(new MarkerOptions()
